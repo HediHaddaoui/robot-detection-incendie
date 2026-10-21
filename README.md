@@ -1,12 +1,17 @@
 # 🔥 Robot Intelligent de Détection d'Incendie
 
-**Projet embarqué basé sur ESP32 — Simulation avec Wokwi**
+**Projet embarqué basé sur ESP32 — Firmware PlatformIO + simulation Wokwi**
 
 ## 📌 Présentation du projet
 
 Ce projet consiste à concevoir et simuler un robot mobile intelligent capable de détecter un départ de feu, de surveiller son environnement et de réagir en fonction des informations fournies par ses capteurs.
 
 Le système utilise un ESP32 comme unité de commande. Il combine des capteurs de détection de flamme, un capteur de distance ultrasonique, un capteur de température et d'humidité, ainsi qu'un servomoteur et une interface LCD.
+
+Le dépôt contient deux volets complémentaires :
+
+- **`robot/`** — le firmware du robot réel, développé avec **PlatformIO** pour une carte ESP32-S3 DevKit (cible `4d_systems_esp32s3_gen4_r8n16`), prêt à être compilé et flashé sur le prototype.
+- **la racine du dépôt** — la **simulation Wokwi** (fichiers `sketch.ino`, `diagram.json`, `libraries.txt`) permettant de reproduire le comportement du robot sans matériel.
 
 ## 🎯 Objectifs
 
@@ -45,6 +50,7 @@ Le système utilise un ESP32 comme unité de commande. Il combine des capteurs d
 
 - C++ / Arduino
 - ESP32
+- PlatformIO
 - Wokwi
 - Git et GitHub
 
@@ -52,11 +58,59 @@ Le système utilise un ESP32 comme unité de commande. Il combine des capteurs d
 
 ```text
 robot-detection-incendie/
-├── sketch.ino
-├── diagram.json
-├── libraries.txt
+├── robot/                     # Firmware PlatformIO (robot réel)
+│   ├── src/main.cpp           # Code source principal
+│   ├── platformio.ini         # Configuration PlatformIO (carte, libs)
+│   ├── include/               # En-têtes additionnels
+│   ├── lib/                   # Bibliothèques locales
+│   ├── test/                  # Tests unitaires PlatformIO
+│   └── .vscode/               # Recommandations d'extensions
+├── docs/
+│   └── robot_pompier.pptx     # Présentation de soutenance du projet
+├── photo-de-robot.jpeg        # Photo du prototype assemblé
+├── sketch.ino                 # Sketch Wokwi (simulation)
+├── diagram.json               # Schéma de câblage de la simulation
+├── libraries.txt              # Bibliothèques Wokwi
+├── wokwi-project.txt          # Lien vers le projet Wokwi en ligne
 └── README.md
 ```
+
+## 🔌 Brochage (câblage réel)
+
+| Fonction | Broche ESP32 |
+|---|---|
+| Relais pompe (TX2) | GPIO 17 |
+| Capteurs IR — FC / FL / FR / BL / BR | GPIO 32 / 33 / 34 / 35 / 23 |
+| HC-SR04 — TRIG / ECHO | GPIO 5 / 18 |
+| Servomoteur SG90 | GPIO 19 |
+| DHT22 | GPIO 15 |
+| Pont en H L298N — IN1/IN2/IN3/IN4 | GPIO 25 / 26 / 27 / 14 |
+| Pont en H L298N — ENA / ENB (PWM) | GPIO 12 / 13 |
+| LCD I2C 16×2 (adresse 0x27) | GPIO 21 (SDA) / 22 (SCL) |
+
+## 🛠️ Compiler et flasher le firmware (PlatformIO)
+
+1. Installer [PlatformIO Core](https://platformio.org/install) ou l'extension **PlatformIO IDE** pour VS Code.
+2. Se placer dans le dossier `robot/`.
+3. Compiler le firmware :
+
+   ```bash
+   pio run
+   ```
+
+4. Brancher l'ESP32-S3 puis flasher la carte :
+
+   ```bash
+   pio run --target upload
+   ```
+
+5. Ouvrir le moniteur série (115200 bauds) pour visualiser les logs :
+
+   ```bash
+   pio device monitor
+   ```
+
+Les dépendances déclarées dans `platformio.ini` sont automatiquement téléchargées par PlatformIO (`ESP32Servo`, `LiquidCrystal_I2C`, `DHT sensor library`).
 
 ## 🚀 Lancer la simulation
 
@@ -65,6 +119,10 @@ robot-detection-incendie/
 3. Démarrer la simulation.
 4. Modifier les interrupteurs simulant les capteurs de flamme pour tester les différents scénarios.
 5. Observer les messages sur l'écran LCD et le comportement du servomoteur.
+
+## 📊 Présentation
+
+La présentation de soutenance du projet est disponible dans [`docs/robot_pompier.pptx`](docs/robot_pompier.pptx). Elle couvre le contexte, le cahier des charges, l'architecture matérielle et logicielle, l'implémentation, les tests de validation et les perspectives d'évolution.
 
 ## 🔧 Améliorations possibles
 
